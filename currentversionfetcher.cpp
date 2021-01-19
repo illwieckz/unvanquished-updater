@@ -80,10 +80,12 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
     QString updaterUrl;
     QString gameVersion;
     QString gameUrl;
+    QString newsVersion;
+    QString newsUrl;
 
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "CurrentVersionFetcher: network error";
-        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
+        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl, newsUrl);
         return;
     }
 
@@ -91,7 +93,7 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
     QJsonDocument json = QJsonDocument::fromJson(reply->readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
         qDebug() << "CurrentVersionFetcher: JSON parsing error";
-        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
+        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl, newsUrl);
         return;
     }
 
@@ -101,6 +103,8 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
 
     ComponentVersionFetcher(jsonObject, "game", "all-all", &gameVersion, &gameUrl);
 
-    emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
+    ComponentVersionFetcher(jsonObject, "news", "all-all", &newsVersion, &newsUrl);
+
+    emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl, newsUrl);
 }
 

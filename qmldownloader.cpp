@@ -24,6 +24,10 @@ QmlDownloader::~QmlDownloader()
     stopAria();
 }
 
+QString QmlDownloader::newsUrl() const {
+    return latestNewsUrl_;
+}
+
 int QmlDownloader::downloadSpeed() const {
     return downloadSpeed_;
 }
@@ -42,6 +46,10 @@ int QmlDownloader::totalSize() const {
 
 int QmlDownloader::completedSize() const {
     return completedSize_;
+}
+
+void QmlDownloader::setNewsUrl(QString newsUrl) {
+    latestNewsUrl_ = newsUrl;
 }
 
 void QmlDownloader::setDownloadSpeed(int speed) {
@@ -198,17 +206,19 @@ void QmlDownloader::stopAria()
 // Initiates an asynchronous request for the latest available versions.
 void QmlDownloader::checkForUpdate()
 {
-    connect(&fetcher_, SIGNAL(onCurrentVersions(QString, QString, QString, QString)), this, SLOT(onCurrentVersions(QString, QString, QString, QString)));
+    connect(&fetcher_, SIGNAL(onCurrentVersions(QString, QString, QString, QString, QString)), this, SLOT(onCurrentVersions(QString, QString, QString, QString, QString)));
     fetcher_.fetchCurrentVersion("https://cdn.unvanquished.net/current.json");
 }
 
 // Receives the results of the checkForUpdate request.
-void QmlDownloader::onCurrentVersions(QString updaterVersion, QString updaterUrl, QString gameVersion, QString gameUrl)
+void QmlDownloader::onCurrentVersions(QString updaterVersion, QString updaterUrl, QString gameVersion, QString gameUrl, QString newsUrl)
 {
     latestUpdaterVersion_ = updaterVersion;
     latestUpdaterUrl_ = updaterUrl;
     latestGameVersion_ = gameVersion;
     latestGameUrl_ = gameUrl;
+
+    setNewsUrl(newsUrl);
 }
 
 // This runs after the splash screen has been displayed for the programmed amount of time (and the
