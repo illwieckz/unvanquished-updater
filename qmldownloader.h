@@ -64,7 +64,7 @@ public slots:
     void setTotalSize(int size);
     void setCompletedSize(int size);
     void onDownloadEvent(int event);
-    void onCurrentVersions(QString updaterVersion, QString updaterUrl, QString gameVersion);
+    void onCurrentVersions(QString updaterVersion, QString updaterUrl, QString gameVersion, QString gameUrl);
 
     Q_INVOKABLE void startUpdate();
     Q_INVOKABLE void toggleDownload();
@@ -90,6 +90,7 @@ private:
     QString latestUpdaterVersion_;
     QString latestUpdaterUrl_;
     QString latestGameVersion_;
+    QString latestGameUrl_;
     DownloadState state_;
     std::unique_ptr<QTemporaryDir> temp_dir_;
 

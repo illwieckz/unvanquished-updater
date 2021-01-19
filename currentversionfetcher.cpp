@@ -79,10 +79,11 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
     QString updaterVersion;
     QString updaterUrl;
     QString gameVersion;
+    QString gameUrl;
 
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "CurrentVersionFetcher: network error";
-        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion);
+        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
         return;
     }
 
@@ -90,7 +91,7 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
     QJsonDocument json = QJsonDocument::fromJson(reply->readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
         qDebug() << "CurrentVersionFetcher: JSON parsing error";
-        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion);
+        emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
         return;
     }
 
@@ -98,18 +99,8 @@ void CurrentVersionFetcher::reply(QNetworkReply* reply)
 
     ComponentVersionFetcher(jsonObject, "updater", Sys::updaterSystem(), &updaterVersion, &updaterUrl);
 
-    QJsonObject gameObject = jsonObject["game"].toObject();
-    if (!gameObject.isEmpty()) {
-        QJsonValue version = gameObject.value("version");
-        if (version != QJsonValue::Undefined) {
-            gameVersion = version.toString();
-        } else {
-            qDebug() << "CurrentVersionFetcher: undefined “version” game value";
-        }
-    } else {
-        qDebug() << "CurrentVersionFetcher: undefined “game” key";
-    }
+    ComponentVersionFetcher(jsonObject, "game", "all-all", &gameVersion, &gameUrl);
 
-    emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion);
+    emit onCurrentVersions(updaterVersion, updaterUrl, gameVersion, gameUrl);
 }
 
