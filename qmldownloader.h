@@ -64,7 +64,7 @@ public slots:
     void setTotalSize(int size);
     void setCompletedSize(int size);
     void onDownloadEvent(int event);
-    void onCurrentVersions(QString updater, QString game);
+    void onCurrentVersions(QString updaterVersion, QString gameVersion);
 
     Q_INVOKABLE void startUpdate();
     Q_INVOKABLE void toggleDownload();

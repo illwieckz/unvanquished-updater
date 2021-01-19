@@ -200,14 +200,14 @@ void QmlDownloader::stopAria()
 void QmlDownloader::checkForUpdate()
 {
     connect(&fetcher_, SIGNAL(onCurrentVersions(QString, QString)), this, SLOT(onCurrentVersions(QString, QString)));
-    fetcher_.fetchCurrentVersion("https://dl.unvanquished.net/versions.json");
+    fetcher_.fetchCurrentVersion("https://cdn.unvanquished.net/current.json");
 }
 
 // Receives the results of the checkForUpdate request.
-void QmlDownloader::onCurrentVersions(QString updater, QString game)
+void QmlDownloader::onCurrentVersions(QString updaterVersion, QString gameVersion)
 {
-    latestUpdaterVersion_ = updater;
-    latestGameVersion_ = game;
+    latestUpdaterVersion_ = updaterVersion;
+    latestGameVersion_ = gameVersion;
 }
 
 // This runs after the splash screen has been displayed for the programmed amount of time (and the
@@ -216,9 +216,10 @@ void QmlDownloader::onCurrentVersions(QString updater, QString game)
 void QmlDownloader::autoLaunchOrUpdate()
 {
     qDebug() << "Previously-installed game version:" << settings_.currentVersion();
-    if (!latestUpdaterVersion_.isEmpty() && latestUpdaterVersion_ != QString(GIT_VERSION)) {
+	QString gitUpdaterVersion = "v" + latestUpdaterVersion_;
+    if (!latestUpdaterVersion_.isEmpty() && gitUpdaterVersion != QString(GIT_VERSION)) {
         qDebug() << "Updater update to version" << latestUpdaterVersion_ << "required";
-        QString url = UPDATER_BASE_URL + "/" + latestUpdaterVersion_ + "/" + Sys::updaterArchiveName();
+        QString url = UPDATER_BASE_URL + "/" + gitUpdaterVersion + "/" + Sys::updaterArchiveName();
         temp_dir_.reset(new QTemporaryDir());
         worker_ = new DownloadWorker(ariaLogFilename_);
         worker_->setDownloadDirectory(QDir(temp_dir_->path()).canonicalPath().toStdString());

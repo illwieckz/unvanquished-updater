@@ -20,33 +20,50 @@ void CurrentVersionFetcher::fetchCurrentVersion(QString url)
 
 void CurrentVersionFetcher::reply(QNetworkReply* reply)
 {
-    QString game;
-    QString updater;
+    QString gameVersion;
+    QString updaterVersion;
+
     if (reply->error() != QNetworkReply::NoError) {
         qDebug() << "CurrentVersionFetcher: network error";
-        emit onCurrentVersions(updater, game);
+        emit onCurrentVersions(updaterVersion, gameVersion);
         return;
     }
+
     QJsonParseError error;
     QJsonDocument json = QJsonDocument::fromJson(reply->readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
         qDebug() << "CurrentVersionFetcher: JSON parsing error";
-        emit onCurrentVersions(updater, game);
+        emit onCurrentVersions(updaterVersion, gameVersion);
         return;
     }
-    QJsonValue value = json.object().value("updater");
-    if (value != QJsonValue::Undefined) {
-        updater = value.toString();
+    QJsonObject jsonObject = json.object();
+
+    QJsonObject updaterObject = jsonObject["updater"].toObject();
+    if (!updaterObject.isEmpty()) {
+        QJsonValue version = updaterObject.value("version");
+        if (version != QJsonValue::Undefined) {
+            updaterVersion = version.toString();
+        } else {
+            qDebug() << "CurrentVersionFetcher: undefined “version” updater value";
+        }
     } else {
-        qDebug() << "CurrentVersionFetcher: undefined “updater” value";
+        qDebug() << "CurrentVersionFetcher: undefined “updater” key";
     }
-    value = json.object().value("unvanquished");
-    if (value != QJsonValue::Undefined) {
-        game = value.toString();
+
+    QJsonObject gameObject = jsonObject["game"].toObject();
+    if (!gameObject.isEmpty()) {
+        QJsonValue version = gameObject.value("version");
+        if (version != QJsonValue::Undefined) {
+            gameVersion = version.toString();
+        } else {
+            qDebug() << "CurrentVersionFetcher: undefined “version” game value";
+        }
     } else {
-        qDebug() << "CurrentVersionFetcher: undefined “unvanquished” value";
+        qDebug() << "CurrentVersionFetcher: undefined “game” key";
     }
-    qDebug() << "CurrentVersionFetcher: fetched versions: updater =" << updater << "game =" << game;
-    emit onCurrentVersions(updater, game);
+
+    qDebug() << "CurrentVersionFetcher: fetched versions: updater =" << updaterVersion << "game =" << gameVersion;
+
+    emit onCurrentVersions(updaterVersion, gameVersion);
 }
 
